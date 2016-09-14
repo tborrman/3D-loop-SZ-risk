@@ -157,26 +157,26 @@ printHelpAndExit() {
 
 while getopts "d:g:R:k:a:hrq:s:p:l:y:z:S:C:D:Q:L:x" opt; do
     case $opt in
-	g) genomeID=$OPTARG ;;
-	h) printHelpAndExit 0;;
-	d) topDir=$OPTARG ;;
-	l) long_queue=$OPTARG ;;
-	q) queue=$OPTARG ;;
-	s) site=$OPTARG ;;
-	R) shortreadend=$OPTARG ;;
-	r) shortread=1 ;;  #use short read aligner
-	a) about=$OPTARG ;;
-	p) genomePath=$OPTARG ;;  
-	y) site_file=$OPTARG ;;
-	z) refSeq=$OPTARG ;;
-	S) stage=$OPTARG ;;
-	C) splitsize=$OPTARG ;;
-	D) juiceDir=$OPTARG ;;
-	Q) queue_time=$OPTARG ;;
-	L) long_queue_time=$OPTARG ;;
-	x) nofrag=1 ;; #no fragment maps
-	[?]) printHelpAndExit 1;;
-	esac
+    g) genomeID=$OPTARG ;;
+    h) printHelpAndExit 0;;
+    d) topDir=$OPTARG ;;
+    l) long_queue=$OPTARG ;;
+    q) queue=$OPTARG ;;
+    s) site=$OPTARG ;;
+    R) shortreadend=$OPTARG ;;
+    r) shortread=1 ;;  #use short read aligner
+    a) about=$OPTARG ;;
+    p) genomePath=$OPTARG ;;  
+    y) site_file=$OPTARG ;;
+    z) refSeq=$OPTARG ;;
+    S) stage=$OPTARG ;;
+    C) splitsize=$OPTARG ;;
+    D) juiceDir=$OPTARG ;;
+    Q) queue_time=$OPTARG ;;
+    L) long_queue_time=$OPTARG ;;
+    x) nofrag=1 ;; #no fragment maps
+    [?]) printHelpAndExit 1;;
+    esac
 done
 
 if [ ! -z "$stage" ]
@@ -186,10 +186,10 @@ then
         dedup) dedup=1 ;;
         early) earlyexit=1 ;;
         final) final=1 ;;
-	postproc) postproc=1 ;; 
+    postproc) postproc=1 ;; 
         *)  echo "$usageHelp"
-	    echo "$stageHelp"
-	    exit 1
+        echo "$stageHelp"
+        exit 1
     esac
 fi
 
@@ -197,10 +197,10 @@ fi
 if [ -z "$refSeq" ]
 then 
     case $genomeID in
-	mm9) refSeq="${juiceDir}/references/Mus_musculus_assembly9_norandom.fasta";;
-	mm10) refSeq="${juiceDir}/references/Mus_musculus_assembly10.fasta";;
-	hg38) refSeq="${juiceDir}/references/hg38.fa";;
-	hg19) refSeq="${juiceDir}/references/Homo_sapiens_assembly19.fasta";;
+    mm9) refSeq="${juiceDir}/references/Mus_musculus_assembly9_norandom.fasta";;
+    mm10) refSeq="${juiceDir}/references/Mus_musculus_assembly10.fasta";;
+    hg38) refSeq="${juiceDir}/references/hg38.fa";;
+    hg19) refSeq="${juiceDir}/references/Homo_sapiens_assembly19.fasta";;
 
     *)  echo "$usageHelp"
         echo "$genomeHelp"
@@ -236,9 +236,9 @@ case $site in
     NcoI) ligation="CCATGCATGG";;
     none) ligation="XXXX";;
     *)  ligation="XXXX"
-	echo "$site not listed as recognized enzyme. Using $site_file as site file"
-	echo "Ligation junction is undefined"
-	exit 100
+    echo "$site not listed as recognized enzyme. Using $site_file as site file"
+    echo "Ligation junction is undefined"
+    exit 100
 esac
 
 ## If DNAse-type experiment, no fragment maps
@@ -252,9 +252,9 @@ case $shortreadend in
     0) ;;
     1) ;;
     2) ;;
-    *)	echo "$usageHelp"
-	echo "$shortHelp2"
-	exit 100
+    *)  echo "$usageHelp"
+    echo "$shortHelp2"
+    exit 100
 esac
 
 if [ -z "$site_file" ]
@@ -285,13 +285,13 @@ if [ ! -d "$topDir/fastq" ]; then
 else 
     if stat -t ${fastqdir} >/dev/null 2>&1
     then
-	echo "(-: Looking for fastq files...fastq files exist"
+    echo "(-: Looking for fastq files...fastq files exist"
     else
-	if [ ! -d "$splitdir" ]; then 
-	    echo "***! Failed to find any files matching ${fastqdir}"
-	    echo "***! Type \"juicer.sh -h \" for help"
-	    exit 100		
-	fi
+    if [ ! -d "$splitdir" ]; then 
+        echo "***! Failed to find any files matching ${fastqdir}"
+        echo "***! Type \"juicer.sh -h \" for help"
+        exit 100        
+    fi
     fi
 fi
 
@@ -300,7 +300,7 @@ if [[ -d "$outputdir" && -z "$final" && -z "$merge" && -z "$dedup" && -z "$postp
 then
     echo "***! Move or remove directory \"$outputdir\" before proceeding."
     echo "***! Type \"juicer.sh -h \" for help"
-    exit 100			
+    exit 100            
 else
     if [[ -z "$final" && -z "$dedup" && -z "$merge" && -z "$postproc" ]]; then
         mkdir "$outputdir" || { echo "***! Unable to create ${outputdir}, check permissions." ; exit 100; } 
@@ -361,41 +361,41 @@ then
     ## sending it to the cluster
     if [ ! $splitdirexists ]
     then
-	echo "(-: Created $splitdir and $outputdir."
-	
-	if [ -n "$threads" ] && [ -z "$skipsplit" ] 
-	then
-	    echo " Splitting files"
-	    for i in ${fastqdir}
-	    do
-		filename=$(basename "$i")
-		filename=${filename%.*}
-		## LSF users change queue below to $queue
-		bsub << SPLITEND
+    echo "(-: Created $splitdir and $outputdir."
+    
+    if [ -n "$threads" ] && [ -z "$skipsplit" ] 
+    then
+        echo " Splitting files"
+        for i in ${fastqdir}
+        do
+        filename=$(basename "$i")
+        filename=${filename%.*}
+        ## LSF users change queue below to $queue
+        bsub << SPLITEND
 
-		#!/bin/bash
-		#BSUB -q $queue
+        #!/bin/bash
+        #BSUB -q $queue
         #BSUB -R "rusage[mem=5000]"
-		#BSUB -W $queue_time
-		#BSUB -K
-		#BSUB -o $topDir/lsf.out
+        #BSUB -W $queue_time
+        #BSUB -K
+        #BSUB -o $topDir/lsf.out
         #BSUB -e $topDir/err_files/splitfiles.err
-		#BSUB -J "${groupname}_split_${i}"
-	        #echo "Split file: $filename"
+        #BSUB -J "${groupname}_split_${i}"
+            #echo "Split file: $filename"
                 #Following line is used in coreutils >= 8.16, if not, simpler version is used below.
-	        #split -a 3 -l $splitsize -d --additional-suffix=.fastq ${i} $splitdir/$filename
+            #split -a 3 -l $splitsize -d --additional-suffix=.fastq ${i} $splitdir/$filename
                 split -a 3 -l $splitsize -d ${i} $splitdir/$filename
 SPLITEND
-		wait
-				
-		ARRAY[countjobs]="${groupname}_split_${i}"
-		countjobs=$(( countjobs + 1 ))
-	    done
+        wait
+                
+        ARRAY[countjobs]="${groupname}_split_${i}"
+        countjobs=$(( countjobs + 1 ))
+        done
 
 
             # Once split succeeds, rename the splits as fastq files
-	    ## LSF users change queue below to $queue 
-	    bsub << SPLITMV
+        ## LSF users change queue below to $queue 
+        bsub << SPLITMV
             #!/bin/bash
             #BSUB -q $queue
             #BSUB -R "rusage[mem=5000]"
@@ -407,25 +407,25 @@ SPLITEND
             for j in $splitdir/*;do mv \${j} \${j}.fastq;done
 SPLITMV
 
-	    ARRAY[countjobs]="${groupname}_move"
-	    countjobs=$(( $countjobs + 1 ))
+        ARRAY[countjobs]="${groupname}_move"
+        countjobs=$(( $countjobs + 1 ))
 
       ## List of split jobs to wait for
 
-	    for (( i=0; i < countjobs; i++ ))
-	    do
-		if [ $i -eq 0 ]; then
-		    exitjobs="exit(${ARRAY[i]}) "
-		else
-		    exitjobs="$exitjobs || exit(${ARRAY[i]})"
-		fi
-	    done
-	else # we're not splitting but just copying
-	    cp -rs ${fastqdir} ${splitdir}
+        for (( i=0; i < countjobs; i++ ))
+        do
+        if [ $i -eq 0 ]; then
+            exitjobs="exit(${ARRAY[i]}) "
+        else
+            exitjobs="$exitjobs || exit(${ARRAY[i]})"
+        fi
+        done
+    else # we're not splitting but just copying
+        cp -rs ${fastqdir} ${splitdir}
             wait
         fi
-	else # split dir already exists, no need to re-split fastqs 
-	echo -e "---  Using already created files in $splitdir\n"
+    else # split dir already exists, no need to re-split fastqs 
+    echo -e "---  Using already created files in $splitdir\n"
     fi
 
     ## Launch job. Once split/move is done, set the parameters for the launch. 
@@ -441,11 +441,11 @@ SPLITMV
 
     for i in ${read1}
     do
-	ext=${i#*$read1str}
-	name=${i%$read1str*} 
-	# these names have to be right or it'll break
-	name1=${name}${read1str}
-	name2=${name}${read2str}	
+    ext=${i#*$read1str}
+    name=${i%$read1str*} 
+    # these names have to be right or it'll break
+    name1=${name}${read1str}
+    name2=${name}${read2str}    
         jname=$(basename "$name")${ext}
         usegzip=0
         if [ "${ext: -3}" == ".gz" ]
@@ -453,177 +453,177 @@ SPLITMV
             usegzip=1
         fi
 
-	# count ligations
+    # count ligations
         ## LSF users change queue below to $queue
-	bsub <<-CNTLIG
-	#!/bin/bash
-	#BSUB -q $queue
+    bsub <<-CNTLIG
+    #!/bin/bash
+    #BSUB -q $queue
     #BSUB -R "rusage[mem=5000]"
     #BSUB -W $queue_time
-	#BSUB -o $topDir/lsf.out
-	#BSUB -J "${groupname}${jname}_Count_Ligation"
+    #BSUB -o $topDir/lsf.out
+    #BSUB -J "${groupname}${jname}_Count_Ligation"
     #BSUB -e $topDir/err_files/cntlig.err
-	export ARG1=${usegzip};export name=${name}; export name1=${name1}; export name2=${name2}; export ext=${ext}; export ligation=${ligation}; ${juiceDir}/scripts/countligations.sh
+    export ARG1=${usegzip};export name=${name}; export name1=${name1}; export name2=${name2}; export ext=${ext}; export ligation=${ligation}; ${juiceDir}/scripts/countligations.sh
 CNTLIG
 
-	# align read1 fastq
-	if [ -n "$shortread" ] || [ "$shortreadend" -eq 1 ]
-	then
-	    alloc_mem=16000
-	else
-	    alloc_mem=12000
-	fi	
+    # align read1 fastq
+    if [ -n "$shortread" ] || [ "$shortreadend" -eq 1 ]
+    then
+        alloc_mem=16000
+    else
+        alloc_mem=12000
+    fi  
 
-	## LSF users change queue below to $queue
-	bsub <<- ALGNR1
-	#!/bin/bash
-	#BSUB -q $queue
-	#BSUB -o $topDir/lsf.out
-	#BSUB -W $queue_time
-	#BSUB -R "rusage[mem=$alloc_mem]"
-	#BSUB -J "${groupname}_align1${jname}"
+    ## LSF users change queue below to $queue
+    bsub <<- ALGNR1
+    #!/bin/bash
+    #BSUB -q $queue
+    #BSUB -o $topDir/lsf.out
+    #BSUB -W $queue_time
+    #BSUB -R "rusage[mem=$alloc_mem]"
+    #BSUB -J "${groupname}_align1${jname}"
     #BSUB -e $topDir/err_files/algnr1.err
-	# Align read1 
-	if [ -n "$shortread" ] || [ "$shortreadend" -eq 1 ]
-	then		
+    # Align read1 
+    if [ -n "$shortread" ] || [ "$shortreadend" -eq 1 ]
+    then        
            echo 'Running command bwa aln -q 15 $refSeq $name1$ext > $name1$ext.sai && bwa samse $refSeq $name1$ext.sai $name1$ext > $name1$ext.sam'
-	   bwa aln -q 15 $refSeq $name1$ext > $name1$ext.sai && bwa samse $refSeq $name1$ext.sai $name1$ext > $name1$ext.sam
-	   if [ \$? -ne 0 ]
-	   then 
+       bwa aln -q 15 $refSeq $name1$ext > $name1$ext.sai && bwa samse $refSeq $name1$ext.sai $name1$ext > $name1$ext.sam
+       if [ \$? -ne 0 ]
+       then 
               echo "Alignment of $name1$ext failed. Check ${topDir}/lsf.out for results"
-	      exit 100
-	   else
-	      echo "(-: Short align of $name1$ext.sam done successfully"
-	   fi		
-			
-	else	
+          exit 100
+       else
+          echo "(-: Short align of $name1$ext.sam done successfully"
+       fi       
+            
+    else    
            echo 'Running command bwa mem $threads $refSeq $name1$ext > $name1$ext.sam '
-	   bwa mem -t 16 $refSeq $name1$ext > $name1$ext.sam
-	   if [ \$? -ne 0 ]
-	   then 
-	      exit 100
-	   else
-	      echo "(-: Mem align of $name1$ext.sam done successfully"
-	   fi		
-	fi
+       bwa mem -t 16 $refSeq $name1$ext > $name1$ext.sam
+       if [ \$? -ne 0 ]
+       then 
+          exit 100
+       else
+          echo "(-: Mem align of $name1$ext.sam done successfully"
+       fi       
+    fi
 ALGNR1
 
-	# align read2 fastq
-	if [ -n "$shortread" ] || [ "$shortreadend" -eq 2 ]
-	then
-	    alloc_mem=16000
-	else
-	    alloc_mem=12000
-	fi	
+    # align read2 fastq
+    if [ -n "$shortread" ] || [ "$shortreadend" -eq 2 ]
+    then
+        alloc_mem=16000
+    else
+        alloc_mem=12000
+    fi  
         
-        ## LSF users change queue below to $queue	
-	bsub <<- ALGNR2
-	#!/bin/bash
-	#BSUB -q $queue
-	#BSUB -o $topDir/lsf.out
-    #BSUB -W $queue_time	
-	#BSUB -R "rusage[mem=$alloc_mem]"
-	#BSUB -J "${groupname}_align2${jname}"
+        ## LSF users change queue below to $queue   
+    bsub <<- ALGNR2
+    #!/bin/bash
+    #BSUB -q $queue
+    #BSUB -o $topDir/lsf.out
+    #BSUB -W $queue_time    
+    #BSUB -R "rusage[mem=$alloc_mem]"
+    #BSUB -J "${groupname}_align2${jname}"
     #BSUB -e $topDir/err_files/algnr2.err
-	# Align read2
-	if [ -n "$shortread" ] || [ "$shortreadend" -eq 2 ]
-	then		
+    # Align read2
+    if [ -n "$shortread" ] || [ "$shortreadend" -eq 2 ]
+    then        
            echo 'Running command bwa aln -q 15 $refSeq $name2$ext > $name2$ext.sai && bwa samse $refSeq $name2$ext.sai $name2$ext > $name2$ext.sam '
-	   bwa aln -q 15 $refSeq $name2$ext > $name2$ext.sai && bwa samse $refSeq $name2$ext.sai $name2$ext > $name2$ext.sam
-	   if [ \$? -ne 0 ]
-	   then 
+       bwa aln -q 15 $refSeq $name2$ext > $name2$ext.sai && bwa samse $refSeq $name2$ext.sai $name2$ext > $name2$ext.sam
+       if [ \$? -ne 0 ]
+       then 
               echo "Alignment of $name2$ext failed. Check ${topDir}/lsf.out for results"
-	      exit 100
-	   else
-	      echo "(-: Short align of $name2$ext.sam done successfully"
-	   fi		
-			
-	else	
+          exit 100
+       else
+          echo "(-: Short align of $name2$ext.sam done successfully"
+       fi       
+            
+    else    
           echo 'Running command bwa mem $threads $refSeq $name2$ext > $name2$ext.sam'
-	  bwa mem -t 16 $refSeq $name2$ext > $name2$ext.sam
-	  if [ \$? -ne 0 ]
-	  then 
-	     exit 100
-	  else
-	     echo "(-: Mem align of $name2$ext.sam done successfully"
-	  fi		
-       fi		
+      bwa mem -t 16 $refSeq $name2$ext > $name2$ext.sam
+      if [ \$? -ne 0 ]
+      then 
+         exit 100
+      else
+         echo "(-: Mem align of $name2$ext.sam done successfully"
+      fi        
+       fi       
 ALGNR2
 
         ## LSF users change queue below to $long_queue
-	# wait for top two, merge
-	bsub <<- MRGALL
-	#!/bin/bash
-	#BSUB -q $long_queue
+    # wait for top two, merge
+    bsub <<- MRGALL
+    #!/bin/bash
+    #BSUB -q $long_queue
         #BSUB -W $long_queue_time
-	#BSUB -o $topDir/lsf.out
-	#BSUB -R "rusage[mem=8000]"
-	#BSUB -w " done(${groupname}_align1${jname}) && done(${groupname}_align2${jname}) "
-	#BSUB -J "${groupname}_merge${jname}"
+    #BSUB -o $topDir/lsf.out
+    #BSUB -R "rusage[mem=8000]"
+    #BSUB -w " done(${groupname}_align1${jname}) && done(${groupname}_align2${jname}) "
+    #BSUB -J "${groupname}_merge${jname}"
     #BSUB -e $topDir/err_files/mrgall.err
-	export LC_ALL=C
-		
-	# sort read 1 aligned file by readname 
-	sort -T $tmpdir -k1,1 $name1$ext.sam > $name1${ext}_sort.sam
-	if [ \$? -ne 0 ]
-	then 
-	   echo "***! Error while sorting $name1$ext.sam"
-	   echo "Sort of $name1$ext.sam failed. Check ${topDir}/lsf.out for results"
-	   exit 100
-	else
-	   echo "(-: Sort read 1 aligned file by readname completed."
-	fi
-		
-	# sort read 2 aligned file by readname 
-	sort -T $tmpdir -k1,1 $name2$ext.sam > $name2${ext}_sort.sam
-	if [ \$? -ne 0 ]
-	then 
-	   echo "***! Error while sorting $name2$ext.sam"  
-	   echo "Sort of $name2$ext.sam failed. Check ${topDir}/lsf.out for results"
-    	   exit 100
-	else
-	   echo "(-: Sort read 2 aligned file by readname completed."
-	fi
-		
-	# remove header, add read end indicator toreadname
-	awk 'NF >= 11{\$1 = \$1"/1";print}' $name1${ext}_sort.sam > $name1${ext}_sort1.sam
-	awk 'NF >= 11{\$1 = \$1"/2";print}' $name2${ext}_sort.sam > $name2${ext}_sort1.sam	
-	# merge the two sorted read end files
-	sort -T $tmpdir -k1,1 -m $name1${ext}_sort1.sam $name2${ext}_sort1.sam > $name$ext.sam
-	if [ $? -ne 0 ]
-	then
-	   echo "***! Failure during merge of read files"
+    export LC_ALL=C
+        
+    # sort read 1 aligned file by readname 
+    sort -T $tmpdir -k1,1 $name1$ext.sam > $name1${ext}_sort.sam
+    if [ \$? -ne 0 ]
+    then 
+       echo "***! Error while sorting $name1$ext.sam"
+       echo "Sort of $name1$ext.sam failed. Check ${topDir}/lsf.out for results"
+       exit 100
+    else
+       echo "(-: Sort read 1 aligned file by readname completed."
+    fi
+        
+    # sort read 2 aligned file by readname 
+    sort -T $tmpdir -k1,1 $name2$ext.sam > $name2${ext}_sort.sam
+    if [ \$? -ne 0 ]
+    then 
+       echo "***! Error while sorting $name2$ext.sam"  
+       echo "Sort of $name2$ext.sam failed. Check ${topDir}/lsf.out for results"
+           exit 100
+    else
+       echo "(-: Sort read 2 aligned file by readname completed."
+    fi
+        
+    # remove header, add read end indicator toreadname
+    awk 'NF >= 11{\$1 = \$1"/1";print}' $name1${ext}_sort.sam > $name1${ext}_sort1.sam
+    awk 'NF >= 11{\$1 = \$1"/2";print}' $name2${ext}_sort.sam > $name2${ext}_sort1.sam  
+    # merge the two sorted read end files
+    sort -T $tmpdir -k1,1 -m $name1${ext}_sort1.sam $name2${ext}_sort1.sam > $name$ext.sam
+    if [ $? -ne 0 ]
+    then
+       echo "***! Failure during merge of read files"
            echo "Merge of $name$ext.sam failed. Check ${topDir}/lsf.out for results"
-	   exit 100
-	else
-	   rm $name1$ext.sa* $name2$ext.sa* $name1${ext}_sort*.sam $name2${ext}_sort*.sam
-	   echo "$name$ext.sam created successfully."
-	fi 
+       exit 100
+    else
+       rm $name1$ext.sa* $name2$ext.sa* $name1${ext}_sort*.sam $name2${ext}_sort*.sam
+       echo "$name$ext.sam created successfully."
+    fi 
 MRGALL
-        ## LSF users change queue below to $queue		
-	bsub <<- CHIMERIC
-	#!/bin/bash
-	#BSUB -q $queue
+        ## LSF users change queue below to $queue       
+    bsub <<- CHIMERIC
+    #!/bin/bash
+    #BSUB -q $queue
         #BSUB -W $queue_time
-	#BSUB -o $topDir/lsf.out
-	#BSUB -R "rusage[mem=8000]"
-	#BSUB -w " done(${groupname}_merge${jname})"
-	#BSUB -J "${groupname}_chimeric${jname}"
+    #BSUB -o $topDir/lsf.out
+    #BSUB -R "rusage[mem=8000]"
+    #BSUB -w " done(${groupname}_merge${jname})"
+    #BSUB -J "${groupname}_chimeric${jname}"
     #BSUB -e $topDir/err_files/chimeric.err
-	export LC_ALL=C	
-	# call chimeric_blacklist.awk to deal with chimeric reads; sorted file is sorted by read name at this point
-	awk -v "fname1"=$name${ext}_norm.txt -v "fname2"=$name${ext}_abnorm.sam -v "fname3"=$name${ext}_unmapped.sam -f ${juiceDir}/scripts/chimeric_blacklist.awk $name$ext.sam
-		
+    export LC_ALL=C 
+    # call chimeric_blacklist.awk to deal with chimeric reads; sorted file is sorted by read name at this point
+    awk -v "fname1"=$name${ext}_norm.txt -v "fname2"=$name${ext}_abnorm.sam -v "fname3"=$name${ext}_unmapped.sam -f ${juiceDir}/scripts/chimeric_blacklist.awk $name$ext.sam
+        
         if [ \$? -ne 0 ]                                              
         then                                       
             echo "***! Failure during chimera handling of $name${ext}"
             echo "Chimera handling of $name$ext.sam failed. Check ${topDir}/lsf.out for results"
             exit 100                                                     
         fi  
-	# if any normal reads were written, find what fragment they correspond to and store that
-	if [ -e "$name${ext}_norm.txt" ] && [ "$site" != "none" ] 
-	then  
-	   ${juiceDir}/scripts/fragment.pl $name${ext}_norm.txt $name${ext}.frag.txt $site_file
+    # if any normal reads were written, find what fragment they correspond to and store that
+    if [ -e "$name${ext}_norm.txt" ] && [ "$site" != "none" ] 
+    then  
+       ${juiceDir}/scripts/fragment.pl $name${ext}_norm.txt $name${ext}.frag.txt $site_file
         elif [ "$site" == "none" ]
         then
             awk '{printf("%s %s %s %d %s %s %s %d", \$1, \$2, \$3, 0, \$4, \$5, \$6, 1); for (i=7; i<=NF; i++) {printf(" %s",\$i);}printf("\n");}' $name${ext}_norm.txt > $name${ext}.frag.txt 
@@ -632,46 +632,46 @@ MRGALL
            echo "Creation of $name${ext}_norm.txt failed. Check ${topDir}/lsf.out for results"
            exit 100
         fi
-	if [ \$? -ne 0 ] 
+    if [ \$? -ne 0 ] 
         then 
            echo "***! Failure during fragment assignment of $name${ext}"
            echo "Fragment assignment of $name$ext.sam failed. Check ${topDir}/lsf.out for results"
            exit 100 
         fi
-	# sort by chromosome, fragment, strand, and position
-	sort -T $tmpdir -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $name${ext}.frag.txt > $name${ext}.sort.txt
+    # sort by chromosome, fragment, strand, and position
+    sort -T $tmpdir -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $name${ext}.frag.txt > $name${ext}.sort.txt
         if [ \$? -ne 0 ]
         then  
           echo "***! Failure during sort of $name${ext}"
           echo "Sort of $name$ext.frag.txt failed. Check ${topDir}/lsf.out for results"
           exit 100                                                        
         else
-	  rm $name${ext}_norm.txt $name${ext}.frag.txt
-	fi	
+      rm $name${ext}_norm.txt $name${ext}.frag.txt
+    fi  
 CHIMERIC
 
-# 	# list of all jobs. if any fail, i.e., exit(jobid) != 0, we will kill
-# 	# the remaining jobs
-# 	ARRAY[countjobs]="exit(${groupname}_align1${jname}) || exit(${groupname}_align2${jname}) || exit(${groupname}_merge${jname}) || exit(${groupname}_chimeric${jname}) "
-# 	countjobs=$(( countjobs + 1 ))
-# 	# done looping over all fastq split files		
+#   # list of all jobs. if any fail, i.e., exit(jobid) != 0, we will kill
+#   # the remaining jobs
+#   ARRAY[countjobs]="exit(${groupname}_align1${jname}) || exit(${groupname}_align2${jname}) || exit(${groupname}_merge${jname}) || exit(${groupname}_chimeric${jname}) "
+#   countjobs=$(( countjobs + 1 ))
+#   # done looping over all fastq split files       
      done
     
 #     for (( i=0; i < countjobs; i++ ))
 #     do
-# 	# clean up jobs if any fail
+#   # clean up jobs if any fail
 #         ## LSF users change queue below to $queue
 #         ## LSF users change bkill to bkill -g ${groupname} 0
-# 	bsub <<- CLNFAIL
-# 	#!/bin/bash
-# 	#BSUB -q $queue
+#   bsub <<- CLNFAIL
+#   #!/bin/bash
+#   #BSUB -q $queue
 #     #BSUB -R "rusage[mem=5000]"
 #         #BSUB -W $queue_time
-# 	#BSUB -o $topDir/lsf.out
-# 	#BSUB -w " ${ARRAY[i]} "
-# 	#BSUB -J "cleanup_${groupname}_${i}"
+#   #BSUB -o $topDir/lsf.out
+#   #BSUB -w " ${ARRAY[i]} "
+#   #BSUB -J "cleanup_${groupname}_${i}"
 #     #BSUB -e $topDir/err_files/clnfail.err
-# 	bkill -g ${groupname} 0
+#   bkill -g ${groupname} 0
 #     echo "CLNFAIL done"
  
 # CLNFAIL
@@ -716,10 +716,10 @@ then
     fi
     if ! sort -T $tmpdir -m -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n $splitdir/*.sort.txt  > $outputdir/merged_sort.txt
     then 
-	echo "***! Some problems occurred somewhere in creating  sorted align files."
+    echo "***! Some problems occurred somewhere in creating  sorted align files."
     else
-	echo "(-: Finished sorting all sorted files into a single merge."
-        rm -r ${tmpdir}		
+    echo "(-: Finished sorting all sorted files into a single merge."
+        rm -r ${tmpdir}     
     fi
 MRGSRT
 #     ## LSF users change queue below to $queue
@@ -737,7 +737,7 @@ MRGSRT
 #     echo "CLNDIE done"
 # CLNDIE
 fi
-		
+        
 # if jobs succeeded, kill the cleanup job, 
 # Remove the duplicates from the big sorted file
 if [ -z $dedup ] && [ -z $final ] && [ -z $postproc ]
@@ -794,15 +794,15 @@ then
     #Skip if post-processing only is required
     if [ -z $postproc ]
     then
-	
-	if [ -z $final ]
-	then
-	    waitstring2="#BSUB -w \" done(${groupname}_osplit) \""
-	    #execstring="bkill -J ${groupname}_clean2 "
-	    waitstring22="-w \"done(${groupname}_rmsplit) && done(${groupname}_osplit)\""
-	fi
+    
+    if [ -z $final ]
+    then
+        waitstring2="#BSUB -w \" done(${groupname}_osplit) \""
+        #execstring="bkill -J ${groupname}_clean2 "
+        waitstring22="-w \"done(${groupname}_rmsplit) && done(${groupname}_osplit)\""
+    fi
         ## LSF users change queue below to $queue
-	bsub <<- DOSTAT
+    bsub <<- DOSTAT
         #!/bin/bash
         #BSUB -q $queue
         #BSUB -R "rusage[mem=5000]"
@@ -813,27 +813,27 @@ then
         #BSUB -J "${groupname}_launch"
         echo "(-: Alignment and merge done, launching other jobs."
         #$execstring
-        bsub -o $topDir/lsf.out -e $topDir/aligned/stats.err -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" $waitstring22 -J "${groupname}_stats" "df -h;_JAVA_OPTIONS=-Xmx16384m; export LC_ALL=en_US.UTF-8; echo -e 'Experiment description: $about' > $outputdir/inter.txt; ${juiceDir}/scripts/statistics.pl -s $site_file -l $ligation -o $outputdir/stats_dups.txt $outputdir/dups.txt; cat $splitdir/*.res.txt | awk -f ${juiceDir}/scripts/stats_sub.awk >> $outputdir/inter.txt; java -cp ${juiceDir}/scripts/ LibraryComplexity $outputdir inter.txt >> $outputdir/inter.txt; ${juiceDir}/scripts/statistics.pl -s $site_file -l $ligation -o $outputdir/inter.txt -q 1 $outputdir/merged_nodups.txt; cat $splitdir/*_abnorm.sam > $outputdir/abnormal.sam; cat $splitdir/*_unmapped.sam > $outputdir/unmapped.sam; awk -f ${juiceDir}/scripts/collisions.awk $outputdir/abnormal.sam > $outputdir/collisions.txt"
+        bsub -o $topDir/lsf.out -e $topDir/aligned/stats.err -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" $waitstring22 -J "${groupname}_stats" "df -h;_JAVA_OPTIONS=-Xmx16384m; export LC_ALL=en_US.UTF-8; echo -e \"Experiment description: $about\" > $outputdir/inter.txt; ${juiceDir}/scripts/statistics.pl -s $site_file -l $ligation -o $outputdir/stats_dups.txt $outputdir/dups.txt; cat $splitdir/*.res.txt | awk -f ${juiceDir}/scripts/stats_sub.awk >> $outputdir/inter.txt; java -cp ${juiceDir}/scripts/ LibraryComplexity $outputdir inter.txt >> $outputdir/inter.txt; ${juiceDir}/scripts/statistics.pl -s $site_file -l $ligation -o $outputdir/inter.txt -q 1 $outputdir/merged_nodups.txt; cat $splitdir/*_abnorm.sam > $outputdir/abnormal.sam; cat $splitdir/*_unmapped.sam > $outputdir/unmapped.sam; awk -f ${juiceDir}/scripts/collisions.awk $outputdir/abnormal.sam > $outputdir/collisions.txt"
         bsub -o $topDir/lsf.out -e $topDir/aligned/hic.err -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" -w "done(${groupname}_stats)" -J "${groupname}_hic" "df -h;export _JAVA_OPTIONS=-Xmx16384m; if [ -n \"$nofrag\" ]; then ${juiceDir}/scripts/juicebox pre -s $outputdir/inter.txt -g $outputdir/inter_hists.m -q 1 $outputdir/merged_nodups.txt $outputdir/inter.hic $genomePath; else ${juiceDir}/scripts/juicebox pre -f $site_file -s $outputdir/inter.txt -t tmp -g $outputdir/inter_hists.m -q 1 $outputdir/merged_nodups.txt $outputdir/inter.hic $genomePath; fi ;"
-        bsub -o $topDir/lsf.out -e $topDir/aligned/hic30.err -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" $waitstring22 -J "${groupname}_hic30" "df -h;export _JAVA_OPTIONS=-Xmx16384m; export LC_ALL=en_US.UTF-8; echo -e 'Experiment description: $about' > $outputdir/inter_30.txt; cat $splitdir/*.res.txt | awk -f ${juiceDir}/scripts/stats_sub.awk >> $outputdir/inter_30.txt; java -cp ${juiceDir}/scripts/ LibraryComplexity $outputdir inter_30.txt >> $outputdir/inter_30.txt; ${juiceDir}/scripts/statistics.pl -s $site_file -l $ligation -o $outputdir/inter_30.txt -q 30 $outputdir/merged_nodups.txt; export _JAVA_OPTIONS=-Xmx8192m; if [ -n \"$nofrag\" ]; then ${juiceDir}/scripts/juicebox pre -s $outputdir/inter_30.txt -t tmp -g $outputdir/inter_30_hists.m -q 30 $outputdir/merged_nodups.txt $outputdir/inter_30.hic $genomePath; else ${juiceDir}/scripts/juicebox pre -f $site_file -s $outputdir/inter_30.txt -t tmp -g $outputdir/inter_30_hists.m -q 30 $outputdir/merged_nodups.txt $outputdir/inter_30.hic $genomePath; fi"
+        bsub -o $topDir/lsf.out -e $topDir/aligned/hic30.err -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" $waitstring22 -J "${groupname}_hic30" "df -h;export _JAVA_OPTIONS=-Xmx16384m; export LC_ALL=en_US.UTF-8; echo -e \"Experiment description: $about\" > $outputdir/inter_30.txt; cat $splitdir/*.res.txt | awk -f ${juiceDir}/scripts/stats_sub.awk >> $outputdir/inter_30.txt; java -cp ${juiceDir}/scripts/ LibraryComplexity $outputdir inter_30.txt >> $outputdir/inter_30.txt; ${juiceDir}/scripts/statistics.pl -s $site_file -l $ligation -o $outputdir/inter_30.txt -q 30 $outputdir/merged_nodups.txt; export _JAVA_OPTIONS=-Xmx8192m; if [ -n \"$nofrag\" ]; then ${juiceDir}/scripts/juicebox pre -s $outputdir/inter_30.txt -t tmp -g $outputdir/inter_30_hists.m -q 30 $outputdir/merged_nodups.txt $outputdir/inter_30.hic $genomePath; else ${juiceDir}/scripts/juicebox pre -f $site_file -s $outputdir/inter_30.txt -t tmp -g $outputdir/inter_30_hists.m -q 30 $outputdir/merged_nodups.txt $outputdir/inter_30.hic $genomePath; fi"
 DOSTAT
-	waitstring3="#BSUB -w \" done(${groupname}_launch) \""
-	waitstring4="-w \"done(${groupname}_hic30)\""
-	waitstring5="-w \"done(${groupname}_stats) && done(${groupname}_postproc) && done(${groupname}_hic30)  && done(${groupname}_hic)\""
-	diefinal=" -w \"exit(${groupname}_postproc) || exit(${groupname}_stats) || exit(${groupname}_hic) || exit(${groupname}_hic30)\""
+    waitstring3="#BSUB -w \" done(${groupname}_launch) \""
+    waitstring4="-w \"done(${groupname}_hic30)\""
+    waitstring5="-w \"done(${groupname}_stats) && done(${groupname}_postproc) && done(${groupname}_hic30)  && done(${groupname}_hic)\""
+    diefinal=" -w \"exit(${groupname}_postproc) || exit(${groupname}_stats) || exit(${groupname}_hic) || exit(${groupname}_hic30)\""
     fi
     ## LSF users change queue below to $queue
-    bsub <<- POSTPROC
+    #bsub <<- POSTPROC
     #!/bin/bash
     #BSUB -q $queue
     #BSUB -R "rusage[mem=5000]"
     #BSUB -W $queue_time
     #BSUB -o $topDir/lsf.out
     #BSUB -e $topDir/err_files/postproc.err
-    ${waitstring3}
+    #${waitstring3}
     #BSUB -J "${groupname}_postproc_wrap"
-    bsub -o $topDir/lsf.out -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" $waitstring4 -J "${groupname}_postproc" "${juiceDir}/scripts/juicer_postprocessing.sh -j ${juiceDir}/scripts/juicebox -i ${outputdir}/inter_30.hic -m ${juiceDir}/references/motif -g ${genomeID}"
-POSTPROC
+    #bsub -o $topDir/lsf.out -q $long_queue -W $long_queue_time -R "rusage[mem=16000]" $waitstring4 -J "${groupname}_postproc" "${juiceDir}/scripts/juicer_postprocessing.sh -j ${juiceDir}/scripts/juicebox -i ${outputdir}/inter_30.hic -m ${juiceDir}/references/motif -g ${genomeID}"
+#POSTPROC
     ## LSF users change queue below to $queue
     bsub <<- FINCLN1
     #!/bin/bash
@@ -843,7 +843,7 @@ POSTPROC
     #BSUB -o $topDir/lsf.out
     #BSUB -e $topDir/err_files/fincln1.err
     #BSUB -J "${groupname}_prep_done"
-    #BSUB -w " done(${groupname}_postproc_wrap) "
+    #BSUB -w " done(${groupname}_launch) "
     #bsub -o $topDir/lsf.out -q $queue -W $queue_time $waitstring5 -J "${groupname}_done" "bkill -J ${groupname}_clean3; export splitdir=${splitdir}; export outputdir=${outputdir}; ${juiceDir}/scripts/check.sh;"
     bsub -o $topDir/lsf.out -q $queue -W $queue_time $waitstring5 -J "${groupname}_done"  "export splitdir=${splitdir}; export outputdir=${outputdir}; ${juiceDir}/scripts/check.sh;"
 
