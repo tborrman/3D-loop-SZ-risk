@@ -557,7 +557,7 @@ ALGNR2
     #BSUB -q $long_queue
         #BSUB -W $long_queue_time
     #BSUB -o $topDir/lsf.out
-    #BSUB -R "rusage[mem=8000]"
+    #BSUB -R "rusage[mem=50000]"
     #BSUB -w " done(${groupname}_align1${jname}) && done(${groupname}_align2${jname}) "
     #BSUB -J "${groupname}_merge${jname}"
     #BSUB -e $topDir/err_files/mrgall.err
@@ -606,7 +606,7 @@ MRGALL
     #BSUB -q $queue
         #BSUB -W $queue_time
     #BSUB -o $topDir/lsf.out
-    #BSUB -R "rusage[mem=8000]"
+    #BSUB -R "rusage[mem=50000]"
     #BSUB -w " done(${groupname}_merge${jname})"
     #BSUB -J "${groupname}_chimeric${jname}"
     #BSUB -e $topDir/err_files/chimeric.err
@@ -704,7 +704,7 @@ then
     #!/bin/bash
     #BSUB -q $long_queue
     #BSUB -W $long_queue_time
-    #BSUB -R "rusage[mem=5000]"
+    #BSUB -R "rusage[mem=50000]"
     #BSUB -o $topDir/lsf.out
     #BSUB -w " done(${groupname}_chimeric*) "
     #BSUB -J "${groupname}_fragmerge"
