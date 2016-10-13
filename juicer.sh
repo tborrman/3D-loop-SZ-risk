@@ -845,7 +845,7 @@ DOSTAT
     #BSUB -J "${groupname}_prep_done"
     #BSUB -w " done(${groupname}_launch) "
     #bsub -o $topDir/lsf.out -q $queue -W $queue_time $waitstring5 -J "${groupname}_done" "bkill -J ${groupname}_clean3; export splitdir=${splitdir}; export outputdir=${outputdir}; ${juiceDir}/scripts/check.sh;"
-    bsub -o $topDir/lsf.out -q $queue -W $queue_time $waitstring5 -J "${groupname}_done"  "export splitdir=${splitdir}; export outputdir=${outputdir}; ${juiceDir}/scripts/check.sh;"
+    bsub -o $topDir/lsf.out -q $queue -W $queue_time -J "${groupname}_done"  "export splitdir=${splitdir}; export outputdir=${outputdir}; ${juiceDir}/scripts/check.sh;"
 
 FINCLN1
 #     # if it dies, cleanup 
