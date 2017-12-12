@@ -6,6 +6,7 @@ import argparse
 parser=argparse.ArgumentParser(description='overlap loops and eQTL')
 parser.add_argument('-i', help='loop file (ex. clean_master_requested_loops)', type=str, required=True)
 parser.add_argument('-o', help='out file', type=str, required=True)
+parser.add_argument('-e', help= 'eQTL file (ex. cis_eQTL_PGC_SCZ2_filter_FDR_1e-20.tsv)', type=str, required=True)
 args=parser.parse_args()
 
 
@@ -13,7 +14,7 @@ args=parser.parse_args()
 def main():
 	loop_file = args.i
 	LFH = open(loop_file, 'r')
-	eQTL_file = '/data/zusers/borrmant/borrmant.ghpcc.project/Research/Schahram/test/opt/juicer/work/eQTL/cis_eQTL_PGC_SCZ2_filter_FDR_0.05.tsv'
+	eQTL_file = args.e
 	outfile = args.o
 	OUT = open(outfile, 'w')
 	# Output file header
