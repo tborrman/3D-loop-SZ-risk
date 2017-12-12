@@ -50,6 +50,6 @@ ksr <- ks.test(NPC_distances, Neu_distances)
 print(paste("NPC_Neu", ksr$p.value, sep="    "))
 ksr <- ks.test(NPC_distances, GM_distances)
 print(paste("NPC_GM", ksr$p.value, sep="    "))
-ksr <- ks.test(Neu_distances, NPC_distances)
-print(paste("Neu_NPC", ksr$p.value, sep="    "))
+ksr <- ks.test(Neu_distances, GM_distances)
+print(paste("Neu_GM", ksr$p.value, sep="    "))
 
