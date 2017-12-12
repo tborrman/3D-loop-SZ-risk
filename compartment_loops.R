@@ -1,68 +1,82 @@
 
-options(scipen=100)
-Neu <- read.table("Sample_Neu.553x2_2607_40000_iced.AB.bed.gz", header=FALSE, sep="\t", comment.char="")
-colnames(Neu) <- c("chrom", "start", "stop", "compartment", "a", "b", "c", "d", "e")
-Neu_size <- Neu$stop - Neu$start
-
-NPC <- read.table("Sample_NPC.553x2_2607_40000_iced.AB.bed.gz", header=FALSE, sep="\t", comment.char="")
-colnames(NPC) <- c("chrom", "start", "stop", "compartment", "a", "b", "c", "d", "e")
-NPC_size <- NPC$stop - NPC$start
-
-Glia <- read.table("Sample_Astro.553x2_2607_40000_iced.AB.bed.gz", header=FALSE, sep="\t", comment.char="")
-colnames(Glia) <- c("chrom", "start", "stop", "compartment", "a", "b", "c", "d", "e")
-Glia_size <- Glia$stop - Glia$start 
-
-png("compartment_size.png", height=2500, width=1300, res=300)
-boxplot(Glia_size/1000000, NPC_size/1000000, Neu_size/1000000, ylab="Compartment size (Mb)", 
-        col = c("#7570b3", "#d95f02", "#1b9e77"), names = c("Astro", "NPC", "Neu"),
-        outline=FALSE, ylim=c(0,30)
-        )
-dev.off()
-
-# A and B
-Neu_A <- Neu[Neu$compartment == 'A',]
-Neu_B <- Neu[Neu$compartment == 'B',]
-NPC_A <- NPC[NPC$compartment == 'A',]
-NPC_B <- NPC[NPC$compartment == 'B',]
-Glia_A <- Glia[Glia$compartment == 'A',]
-Glia_B <- Glia[Glia$compartment == 'B',]
-
-Neu_A_size <- Neu_A$stop - Neu_A$start
-Neu_B_size <- Neu_B$stop - Neu_B$start
-NPC_A_size <- NPC_A$stop - NPC_A$start
-NPC_B_size <- NPC_B$stop - NPC_B$start
-Glia_A_size <- Glia_A$stop - Glia_A$start
-Glia_B_size <- Glia_B$stop - Glia_B$start
-
-lo <- read.table("overlap_loops_compartments.txt", header=TRUE, sep="\t", row.names=1)
-# Remove total
-rlo <- lo[,1:4]
+lo <- read.table("overlap_loop_compartments.txt", header=TRUE, sep="\t", row.names=1)
+# Remove total and U
+rlo <- lo[,1:3]
 tlo <- as.table(t(rlo))
+colnames(tlo) <- c("Glia", "NPC", "Neuron")
+rownames(tlo) <- c("AA", "BB", "AB")
 
-png("compartment_loops.png", height=2500, width=1800, res=300)
-barplot(tlo, col=c("red", "blue", "violet", "gray"), legend=rownames(tlo), 
-        ylab= "Number of loops", main = "Compartments overlapping loop anchors")
+
+pdf("downsampled_compartment_loop_overlaps.pdf", width=4, height=7)
+par(mar=c(5, 5, 4, 2) + 0.1)
+barplot(tlo, col=c("blue", "red", "violet"), legend.text=rownames(tlo), 
+        ylab= "Number of loops", cex.lab=1.3, cex.names=1.3, cex.axis = 1.15, 
+        args.legend=list(x=4.3, y=13000, bty="n", cex=1.3), ylim=c(0,12000))
 dev.off()
+
+
+# Percentages
+print(paste("Astro_AA: ", round(lo["Astro", "AA"]/lo["Astro", "total"], 2)*100,
+            "%", sep=""))
+print(paste("Astro_BB: ", round(lo["Astro", "BB"]/lo["Astro", "total"], 2)*100,
+            "%", sep=""))
+print(paste("Astro_AB: ", round(lo["Astro", "AB"]/lo["Astro", "total"], 2)*100,
+            "%", sep=""))
+print(paste("NPC_AA: ", round(lo["NPC", "AA"]/lo["NPC", "total"], 2)*100,
+            "%", sep=""))
+print(paste("NPC_BB: ", round(lo["NPC", "BB"]/lo["NPC", "total"], 2)*100,
+            "%", sep=""))
+print(paste("NPC_AB: ", round(lo["NPC", "AB"]/lo["NPC", "total"], 2)*100,
+            "%", sep=""))
+print(paste("Neu_AA: ", round(lo["Neu", "AA"]/lo["Neu", "total"], 2)*100,
+            "%", sep=""))
+print(paste("Neu_BB: ", round(lo["Neu", "BB"]/lo["Neu", "total"], 2)*100,
+            "%", sep=""))
+print(paste("Neu_AB: ", round(lo["Neu", "AB"]/lo["Neu", "total"], 2)*100,
+            "%", sep=""))
+
+# Compartment size correct
+Neu <- read.table("Neu.553x2_2607.11654.500kb.pc1_removed_chr.bedGraph", header=FALSE, sep="\t", comment.char="")
+colnames(Neu) <- c("chrom", "start", "stop", "eigen")
+Neu_A <- Neu[Neu$eigen > 0, ]
+Neu_A_size <- sum(Neu_A$stop - Neu_A$start, na.rm=TRUE)
+Neu_B <- Neu[Neu$eigen <= 0, ]
+Neu_B_size <- sum(Neu_B$stop - Neu_B$start, na.rm=TRUE)
+
+Astro <- read.table("Astro.553x2_2607.11654.500kb.pc1_removed_chr.bedGraph", header=FALSE, sep="\t", comment.char="")
+colnames(Astro) <- c("chrom", "start", "stop", "eigen")
+Astro_A <- Astro[Astro$eigen > 0, ]
+Astro_A_size <- sum(Astro_A$stop - Astro_A$start, na.rm=TRUE)
+Astro_B <- Astro[Astro$eigen <= 0, ]
+Astro_B_size <- sum(Astro_B$stop - Astro_B$start, na.rm=TRUE)
+
+NPC <- read.table("NPC.553x2_2607.11654.500kb.pc1_removed_chr.bedGraph", header=FALSE, sep="\t", comment.char="")
+colnames(NPC) <- c("chrom", "start", "stop", "eigen")
+NPC_A <- NPC[NPC$eigen > 0, ]
+NPC_A_size <- sum(NPC_A$stop - NPC_A$start, na.rm=TRUE)
+NPC_B <- NPC[NPC$eigen <= 0, ]
+NPC_B_size <- sum(NPC_B$stop - NPC_B$start, na.rm=TRUE)
 
 # Correct for size of compartments
-Neu_A_correct <- (lo["Neu", "AA"]*1000000)/(sum(Neu_A_size))
-Neu_B_correct <- (lo["Neu", "BB"]*1000000)/(sum(Neu_B_size))
-NPC_A_correct <- (lo["NPC", "AA"]*1000000)/(sum(NPC_A_size))
-NPC_B_correct <- (lo["NPC", "BB"]*1000000)/(sum(NPC_B_size))
-Glia_A_correct <- (lo["Astro", "AA"]*1000000)/(sum(Glia_A_size))
-Glia_B_correct <- (lo["Astro", "BB"]*1000000)/(sum(Glia_B_size))
+Neu_A_correct <- (lo["Neu", "AA"]*1000000)/(Neu_A_size)
+Neu_B_correct <- (lo["Neu", "BB"]*1000000)/(Neu_B_size)
+NPC_A_correct <- (lo["NPC", "AA"]*1000000)/(NPC_A_size)
+NPC_B_correct <- (lo["NPC", "BB"]*1000000)/(NPC_B_size)
+Astro_A_correct <- (lo["Astro", "AA"]*1000000)/(Astro_A_size)
+Astro_B_correct <- (lo["Astro", "BB"]*1000000)/(Astro_B_size)
 
 Neu_correct <- c(Neu_A_correct, Neu_B_correct)
 NPC_correct <- c(NPC_A_correct, NPC_B_correct)
-Glia_correct <- c(Glia_A_correct, Glia_B_correct)
+Glia_correct <- c(Astro_A_correct, Astro_B_correct)
 
 correct_mat <- as.matrix(data.frame(Glia_correct, NPC_correct, Neu_correct, row.names=c("A", "B")))
-colnames(correct_mat) <- c("Astro", "NPC", "Neu")
+colnames(correct_mat) <- c("Glia", "NPC", "Neuron")
 
-png("compartment_loops_size_correct.png", height=2500, width=1800, res=300)
-barplot(correct_mat, col=c("red", "blue"), legend=rownames(correct_mat), 
-        ylab= "Number of loops per 1 Mb for compartment", ylim=c(0,10),
-        main = "Compartments overlapping loop anchors \n(compartment size corrected)")
+pdf("downsampled_compartment_loop_overlaps_size_correct.pdf", width=5, height=5)
+par(mar=c(5.1, 5.1, 4.1, 2.1))
+correct_tab <- as.table(correct_mat)
+barplot(correct_tab, beside = TRUE, col=c("blue", "red"), 
+        ylab= "Number of loops per 1 Mb", ylim= c(0,7))
+legend("topright", rownames(correct_tab), fill=c("blue", "red"), bty="n")
 dev.off()
-
 
