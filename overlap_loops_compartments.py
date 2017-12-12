@@ -8,14 +8,28 @@ import gzip
 
 
 parser = argparse.ArgumentParser(description='Return percentages of A-A, B-B, or A-B loop anchors')
-parser.add_argument('-c', help='compartment call file (ex. Sample_Neu.553x2_2607_40000_iced.AB.bed.gz)',
+parser.add_argument('-c', help='compartment call file (ex. Neu.553x2_2607.11654.500kb.pc1.bedGraph)',
 	type=str, required=True)
 parser.add_argument('-t', help='type of cell (ex. Astro, GM, Neu, or NPC)', type=str, required=True)
 parser.add_argument('-l', help='cleaned loop file (ex. clean_master_requested_loops)', type=str,
 	required=True)
 args=parser.parse_args()
 
-
+def eigen_to_compartment(e):
+	'''
+	Return compartment type of 
+	eigenvector value
+	Args: e float
+	Return: c string 
+	'''
+	if e <= 0 :
+		c = 'B'
+	elif e > 0 :
+		c = 'A'
+	else:
+		print 'ERROR: undefined eigenvector value'
+		sys.exit()
+	return c
 
 def get_loop_type(chrom, loop, cf):
 	'''
@@ -35,20 +49,25 @@ def get_loop_type(chrom, loop, cf):
 
 	anchor1_compartment_found = False
 	anchor2_compartment_found = False
+
 	for line in C:
 		splitline = line.strip().split('\t')
 		c_chrom = splitline[0]
 		c_start = int(splitline[1])
 		c_stop = int(splitline[2])
-		c_call = splitline[3]
-		c_interval = [c_start, c_stop]
-		if c_chrom == chrom:
-			if mf.contains(c_interval, loop[0]) and not anchor1_compartment_found:
-				anchor1_compartment = c_call
-				anchor1_compartment_found = True
-			if mf.contains(c_interval, loop[1]) and not anchor2_compartment_found:
-				anchor2_compartment = c_call
-				anchor2_compartment_found = True
+		eigen = splitline[3]
+		if eigen != 'nan':
+			eigen = float(eigen)
+			eigen = eigen_to_compartment(eigen)
+			c_interval = [c_start, c_stop]
+			if c_chrom == chrom:
+				if mf.contains(c_interval, loop[0]) and not anchor1_compartment_found:
+					anchor1_compartment = eigen
+					anchor1_compartment_found = True
+				if mf.contains(c_interval, loop[1]) and not anchor2_compartment_found:
+					anchor2_compartment = eigen
+					anchor2_compartment_found = True
+	
 	if not anchor1_compartment_found or not anchor2_compartment_found:
 		loop_type = 'U'
 	else:
