@@ -29,7 +29,7 @@ def check_start_below_stop(start, stop):
 		sys.exit()
 
 
-def is_loop_in_cell(line, cell, specific, filter):
+def is_loop_in_cell(line, cell, specific, filtr):
 	col_id = {'Astro': 21,
 				'GM': 22,
 				'Neu': 23,
@@ -42,7 +42,7 @@ def is_loop_in_cell(line, cell, specific, filter):
 		qval1 = float(splitline[col_id[other_cells[0]]])
 		qval2 = float(splitline[col_id[other_cells[1]]])
 		qval3 = float(splitline[col_id[other_cells[2]]])
-		if args.f:
+		if filtr:
 			reads = float(splitline[7])
 			if qval < -1 and qval1 >= -1 and qval2 >= -1 and qval3 >= -1 and reads > 50:
 				print line.strip()
