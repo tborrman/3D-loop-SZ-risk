@@ -1,26 +1,25 @@
 
-# Read data tables
-NPC_intxns <- read.table("S12.NPC-specific_PGC_intrxns.txt", sep="\t", header=TRUE, comment.char="")
-chromSizes <- read.table("chrom.sizes", sep="\t", header=FALSE)
-RPKM_df <- read.table("COSgenesPositionsMatrix.txt", sep="\t", header=FALSE, comment.char="")
-colnames(RPKM_df)[1:4] <- c("chrom", "start", "end", "gene")
-# Separate RPKM table by chrom
-RPKM_list <- split(RPKM_df, f=RPKM_df$chrom)
-
-# Remove M chrom
-chromSizes <- chromSizes[1:nrow(chromSizes) -1, ]
-colnames(chromSizes) <- c("chrom", "bp")
-# generate cumulative genome table
-chrom <- as.character(chromSizes$chrom)
-bp <- cumsum(as.numeric(chromSizes$bp))
-cmChromSizes <- data.frame(chrom, bp)
-
-
+# # Read data tables
+# NPC_intxns <- read.table("S12.NPC-specific_PGC_intrxns.txt", sep="\t", header=TRUE, comment.char="")
+# chromSizes <- read.table("chrom.sizes", sep="\t", header=FALSE)
+# RPKM_df <- read.table("COSgenesPositionsMatrix.txt", sep="\t", header=FALSE, comment.char="")
+# colnames(RPKM_df)[1:4] <- c("chrom", "start", "end", "gene")
+# # Separate RPKM table by chrom
+# RPKM_list <- split(RPKM_df, f=RPKM_df$chrom)
+# 
+# # Remove M chrom
+# chromSizes <- chromSizes[1:nrow(chromSizes) -1, ]
+# colnames(chromSizes) <- c("chrom", "bp")
+# # generate cumulative genome table
+# chrom <- as.character(chromSizes$chrom)
+# bp <- cumsum(as.numeric(chromSizes$bp))
+# cmChromSizes <- data.frame(chrom, bp)
 
 is_cis <- function(row) {
   # Determine if significant interaction is in
   # cis or trans
   # Returns: boolean; True if in cis"
+  
   chr1 <- sub(":.*", "", row$anchor.bin.coord)
   chr2 <- sub(":.*", "", row$target.bin.coord)
   if(chr1 == chr2){
@@ -33,6 +32,7 @@ is_cis <- function(row) {
 
 get_distance <- function(row) {
   # Returns: bp distance between significant interaction
+  
   start <- as.numeric(sub(".*:(.*)-.*", "\\1", row$anchor.bin.coord))
   end <- as.numeric(sub(".*:(.*)-.*", "\\1", row$target.bin.coord))
   d <- abs(start - end)
@@ -48,6 +48,7 @@ rand_genomic_pos <- function(d, c, cm) {
   #   chrom = chromosome
   #   g1 = random genomic coordinate
   #   g2 = paired genomic coordinate d bp from g1
+  
   total <- cm$bp[length(cm$bp)]
   chrStarts <- c(1,cm$bp[1:length(cm$bp) -1] + 1)
   rand_pos <- sample(total, 1)
@@ -74,59 +75,71 @@ overlap <- function(a, b){
   }
 }
 
-get_overlap_gene_idxs <- function(RPKM_df, rand_coord) {
+get_overlap_gene_idxs <- function(RPKMl, rand_coord) {
   # Return row numbers of RPKM_df for genes
   # overlapping input random coordinates
   # Args:
-  # RPKM_df = RPKM table for genes
+  # RPKMl = list of chromosome dataframes of genes with RPKMs to sample from
   # rand_coord = list of [chrom, coord1, coord2]
   # Returns: 
   # vector idx = row indexes for genes that overlap 
   # random genome coordinates
+  
   rand_chrom <- rand_coord[[1]]
   # 10kb bins
   rand_g1 <- c(rand_coord[[2]], rand_coord[[2]] + 10000)
   rand_g2 <- c(rand_coord[[3]], rand_coord[[3]] + 10000)
-  #print(rand_coord)
-  #print(rand_g1)
-  #print(rand_g2)
   idx = c()
-  chrom_gene_df <-  RPKM_list[[rand_chrom]]
+  chrom_gene_df <-  RPKMl[[rand_chrom]]
   for (i in 1:nrow(chrom_gene_df)) {
     gene_pos <- c(chrom_gene_df[i,]$start, chrom_gene_df[i,]$end)
-    # if (i %% 100 == 0) {
-    #   print(i)
-    # }
     if (overlap(gene_pos, rand_g1) | overlap(gene_pos, rand_g2)) {
-      # print(rand_chrom)
-      # print(rand_g1)
-      # print(rand_g2)
-      # print(chrom_gene_df[i,]$chrom)
-      # print(gene_pos)
-      # print(chrom_gene_df[i,1:5])
-      # print(rownames(chrom_gene_df[i,]))
       idx <- c(idx, as.numeric(rownames(chrom_gene_df[i,])))
     }
   }
   return(idx)
 }
 
-
-
-# Get random PGC interacion
-r <- sample(1:nrow(NPC_intxns), 1)
-randRow = NPC_intxns[r,]
-if (is_cis(randRow)) {
-  d <- get_distance(randRow)
-  rand_coord <- rand_genomic_pos(d, chromSizes, cmChromSizes)
-  print(rand_coord)
-  rand_idxs <- get_overlap_gene_idxs(RPKM_df, rand_coord)
-  print(rand_idxs)
-
-} else {
-  print("ERROR: trans interaction")
-  stop()
+sample_null_distribution <- function(intxns, cSizes, cmcSizes, RPKM_l, RPKM_d, sample_size) {
+  # sample genes from RPKM_df that have distances with an equivalent 
+  # distribution as distances between genes with significant 
+  # interactions with PGC loci
+  # Args:
+  # intxns = dataframe of significant PGC interactions
+  # cSizes = dataframe of bp chromosome sizes
+  # cmSizes = dataframe of bp cumulative chromosome sizes
+  # RPKM_l = list of chromosome dataframes of genes with RPKMs to sample from
+  # RPKM_d = full dataframe of genes with RPKMs to sample from
+  # sample_size = number of PGC interacting genes
+  # Returns:
+  # dataframe of sample genes for null distribution
+  
+  rand_idxs <- c()
+  while(length(rand_idxs) < sample_size) { 
+    # Get random PGC interaction
+    r <- sample(1:nrow(intxns), 1)
+    randRow = intxns[r,]
+    if (is_cis(randRow)) {
+      # Get distance of interaction
+      d <- get_distance(randRow)
+      # Select random coordinates with same distance
+      rand_coord <- rand_genomic_pos(d, cSizes, cmcSizes)
+      #print(rand_coord)
+      # Get genes overlapping random coordinate
+      rand_idx <- get_overlap_gene_idxs(RPKM_l, rand_coord)
+      rand_idxs <- c(rand_idxs, rand_idx)
+    } else {
+      print("ERROR: trans interaction")
+      stop()
+    }
+  }
+  # Trim to sample_size in cases it went over
+  rand_idxs <- rand_idxs[1:sample_size]
+  return(RPKM_d[rand_idxs,])
 }
+
+# x <- sample_null_distribution(NPC_intxns, chromSizes, cmChromSizes, RPKM_list, RPKM_df, 3)
+
 
 
 
