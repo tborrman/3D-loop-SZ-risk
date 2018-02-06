@@ -2,6 +2,11 @@
 # Read data tables
 NPC_intxns <- read.table("S12.NPC-specific_PGC_intrxns.txt", sep="\t", header=TRUE, comment.char="")
 chromSizes <- read.table("chrom.sizes", sep="\t", header=FALSE)
+RPKM_df <- read.table("COSgenesPositionsMatrix.txt", sep="\t", header=FALSE, comment.char="")
+colnames(RPKM_df)[1:4] <- c("chrom", "start", "end", "gene")
+# Separate RPKM table by chrom
+RPKM_list <- split(RPKM_df, f=RPKM_df$chrom)
+
 # Remove M chrom
 chromSizes <- chromSizes[1:nrow(chromSizes) -1, ]
 colnames(chromSizes) <- c("chrom", "bp")
@@ -58,12 +63,65 @@ rand_genomic_pos <- function(d, c, cm) {
   return(coords)
 }
 
+overlap <- function(a, b){
+  # Return boolean for whether interval b
+  # overlaps interval a
+  
+  if (((a[1] <= b[1]) & (b[1]<= a[2])) | ((b[1] <= a[1]) & (a[1]<= b[2]))) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+get_overlap_gene_idxs <- function(RPKM_df, rand_coord) {
+  # Return row numbers of RPKM_df for genes
+  # overlapping input random coordinates
+  # Args:
+  # RPKM_df = RPKM table for genes
+  # rand_coord = list of [chrom, coord1, coord2]
+  # Returns: 
+  # vector idx = row indexes for genes that overlap 
+  # random genome coordinates
+  rand_chrom <- rand_coord[[1]]
+  # 10kb bins
+  rand_g1 <- c(rand_coord[[2]], rand_coord[[2]] + 10000)
+  rand_g2 <- c(rand_coord[[3]], rand_coord[[3]] + 10000)
+  #print(rand_coord)
+  #print(rand_g1)
+  #print(rand_g2)
+  idx = c()
+  chrom_gene_df <-  RPKM_list[[rand_chrom]]
+  for (i in 1:nrow(chrom_gene_df)) {
+    gene_pos <- c(chrom_gene_df[i,]$start, chrom_gene_df[i,]$end)
+    # if (i %% 100 == 0) {
+    #   print(i)
+    # }
+    if (overlap(gene_pos, rand_g1) | overlap(gene_pos, rand_g2)) {
+      # print(rand_chrom)
+      # print(rand_g1)
+      # print(rand_g2)
+      # print(chrom_gene_df[i,]$chrom)
+      # print(gene_pos)
+      # print(chrom_gene_df[i,1:5])
+      # print(rownames(chrom_gene_df[i,]))
+      idx <- c(idx, as.numeric(rownames(chrom_gene_df[i,])))
+    }
+  }
+  return(idx)
+}
+
+
+
 # Get random PGC interacion
 r <- sample(1:nrow(NPC_intxns), 1)
 randRow = NPC_intxns[r,]
 if (is_cis(randRow)) {
   d <- get_distance(randRow)
-  x <- rand_genomic_pos(d, chromSizes, cmChromSizes)
+  rand_coord <- rand_genomic_pos(d, chromSizes, cmChromSizes)
+  print(rand_coord)
+  rand_idxs <- get_overlap_gene_idxs(RPKM_df, rand_coord)
+  print(rand_idxs)
 
 } else {
   print("ERROR: trans interaction")
