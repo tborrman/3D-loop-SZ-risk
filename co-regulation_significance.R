@@ -1,20 +1,4 @@
 
-# # Read data tables
-# NPC_intxns <- read.table("S12.NPC-specific_PGC_intrxns.txt", sep="\t", header=TRUE, comment.char="")
-# chromSizes <- read.table("chrom.sizes", sep="\t", header=FALSE)
-# RPKM_df <- read.table("COSgenesPositionsMatrix.txt", sep="\t", header=FALSE, comment.char="")
-# colnames(RPKM_df)[1:4] <- c("chrom", "start", "end", "gene")
-# # Separate RPKM table by chrom
-# RPKM_list <- split(RPKM_df, f=RPKM_df$chrom)
-# 
-# # Remove M chrom
-# chromSizes <- chromSizes[1:nrow(chromSizes) -1, ]
-# colnames(chromSizes) <- c("chrom", "bp")
-# # generate cumulative genome table
-# chrom <- as.character(chromSizes$chrom)
-# bp <- cumsum(as.numeric(chromSizes$bp))
-# cmChromSizes <- data.frame(chrom, bp)
-
 is_cis <- function(row) {
   # Determine if significant interaction is in
   # cis or trans
@@ -58,7 +42,6 @@ rand_genomic_pos <- function(d, c, cm) {
   g2 <- g1 + d
   coords <- list(chrom, g1, g2)
   if (g2 > c$bp[chr_idx]) {
-    print(coords)
     coords<- rand_genomic_pos(d, c, cm)
   }
   return(coords)
@@ -132,14 +115,15 @@ sample_null_distribution <- function(intxns, cSizes, cmcSizes, RPKM_l, RPKM_d, s
       print("ERROR: trans interaction")
       stop()
     }
+    # Check for and remove duplicates
+    if(anyDuplicated(rand_idxs) != 0) {
+      rand_idxs <- rand_idxs[!duplicated(rand_idxs)]
+    }
   }
   # Trim to sample_size in cases it went over
   rand_idxs <- rand_idxs[1:sample_size]
   return(RPKM_d[rand_idxs,])
 }
-
-# x <- sample_null_distribution(NPC_intxns, chromSizes, cmChromSizes, RPKM_list, RPKM_df, 3)
-
 
 
 
