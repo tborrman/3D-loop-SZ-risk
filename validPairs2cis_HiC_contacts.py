@@ -24,13 +24,14 @@ def keep_contact(line):
 	splitline = line.split('\t')
 	chr1 = splitline[1]
 	chr2 = splitline[4]
-	if not is_chrom(chr1, chr2):
-		print 'ERROR selecting chromosome'
-		sys.exit()
 	if chr1 != chr2:
 		return False
 	else:
-		return True
+		if is_chrom(chr1, chr2):
+			return True
+		else:
+			return False
+
 def pre_format(line):
 	'''
 	Format contact line in short format for input to Juicer pre command
